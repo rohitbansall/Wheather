@@ -1,18 +1,25 @@
 import React, { useState, useEffect } from 'react';
+import Store from './StorePrevdata';
 
 const Weather = ({ search }) => {
   const [weatherData, setWeatherData] = useState(null);
   const [error, setError] = useState(null);
+  const [store, setStore] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${search}&units=metric&appid=bf898a297f528a676b67ea1b6b20d41b`);
+        console.log(response);
         if (!response.ok) {
           throw new Error('Failed to fetch weather data');
         }
         const data = await response.json();
+        console.log(data);
         setWeatherData(data);
+
+        setStore(prev => [...prev, data]);
+
       } catch (error) {
         setError(error.message);
       }
@@ -28,7 +35,7 @@ const Weather = ({ search }) => {
   }
 
   if (!weatherData) {
-    return <div></div>;
+    return <div>Loading...</div>;
   }
 
   return (
@@ -82,7 +89,6 @@ const Weather = ({ search }) => {
                 </h1>
                 <ul className="list-unstyled mt-3 mb-4">
                   <li>Wind Degrees: {weatherData.wind.deg}</li>
-
                   <li>Feels Like: {weatherData.main.feels_like}&#8451;</li>
                 </ul>
               </div>
@@ -90,6 +96,8 @@ const Weather = ({ search }) => {
           </div>
         </div>
       </div>
+
+      <Store storeData={store} />
     </>
   );
 };
